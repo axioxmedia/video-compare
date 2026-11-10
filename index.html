@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>视频差异比对工具</title>
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<header>
+  <div class="logo">
+    <i class="fa-solid fa-film logo-icon"></i>视频差异比对工具
+  </div>
+  <div class="header-right">
+    <span class="storage-tag" id="storageTag"><i class="fa-solid fa-cloud"></i> 自动保存已开启</span>
+    <a href="settings.html"><i class="fa-solid fa-gear"></i> 设定</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="banner" id="restoreBanner">
+    <i class="fa-solid fa-clock-rotate-left banner-icon"></i>
+    <span id="restoreText">已恢复上次会话</span>
+    <button class="banner-close" id="dismissRestore"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div class="upload-row">
+    <div class="drop" id="dropA">
+      <h3><i class="fa-solid fa-cloud-arrow-up upload-icon"></i>视频 A</h3>
+      <p>拖拽视频到此处，或点击选择</p>
+      <input type="file" id="fileA" accept="video/*">
+      <video id="videoA" controls muted></video>
+    </div>
+    <div class="drop" id="dropB">
+      <h3><i class="fa-solid fa-cloud-arrow-up upload-icon"></i>视频 B</h3>
+      <p>拖拽视频到此处，或点击选择</p>
+      <input type="file" id="fileB" accept="video/*">
+      <video id="videoB" controls muted></video>
+    </div>
+  </div>
+
+  <div class="meta-row">
+    <div class="meta-card" id="metaA">
+      <h4>视频 A 参数</h4>
+      <div class="muted-text">尚未加载</div>
+    </div>
+    <div class="meta-card" id="metaB">
+      <h4>视频 B 参数</h4>
+      <div class="muted-text">尚未加载</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="analyzeBtn" disabled><i class="fa-solid fa-scale-balanced"></i> 开始差异分析</button>
+    <button id="playSyncBtn" class="secondary" disabled><i class="fa-solid fa-play"></i> 同步播放</button>
+    <button id="resetBtn" class="secondary"><i class="fa-solid fa-rotate-left"></i> 清空会话</button>
+    <button id="aiRunBtn" class="ai-btn" style="display:none;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 进阶分析</button>
+    <span class="status" id="status"></span>
+  </div>
+
+  <div class="frames">
+    <div class="frame-panel">
+      <strong><i class="fa-solid fa-images"></i> 视频 A 抽帧</strong>
+      <div class="frame-grid" id="gridA"></div>
+    </div>
+    <div class="frame-panel">
+      <strong><i class="fa-solid fa-images"></i> 视频 B 抽帧</strong>
+      <div class="frame-grid" id="gridB"></div>
+    </div>
+  </div>
+
+  <div class="report" id="report">
+    <div class="report-title"><i class="fa-solid fa-file-lines"></i> 比对报告</div>
+    等待加载两个视频并开始差异分析...
+  </div>
+</div>
+
+<script src="vendor/mp4box/mp4box.all.min.js"></script>
+<script src="vendor/mediainfo/mediainfo.min.js"></script>
+<script src="js/core/util.js"></script>
+<script src="js/core/diff-engine.js"></script>
+<script src="js/core/storage.js"></script>
+<script src="js/core/media-analyzer.js"></script>
+<script src="js/core/frame-extractor.js"></script>
+<script src="js/core/report.js"></script>
+<script src="vendor/tfjs/tf.min.js"></script>
+<script src="js/core/ai/model-store.js"></script>
+<script src="js/core/ai/pose-engine.js"></script>
+<script src="js/core/ai/cloud-api.js"></script>
+<script src="js/core/ai/ai-controller.js"></script>
+<script src="js/core/ai/ai-report.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>视频差异比对工具 · 设定</title>
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body class="settings-body">
+<header>
+  <div class="logo"><i class="fa-solid fa-film logo-icon"></i>视频差异比对工具</div>
+  <a href="index.html"><i class="fa-solid fa-arrow-left"></i> 返回主界面</a>
+</header>
+
+<main class="settings-main">
+  <div class="setting-card">
+    <h1><i class="fa-solid fa-sliders head-icon"></i>分析选项</h1>
+    <p class="muted-text">所有分析均在本地浏览器完成；设定保存在本地数据库，刷新或关闭后仍然有效。</p>
+  </div>
+
+  <!-- 基础分析选项 -->
+  <div class="setting-card">
+    <div class="setting-row">
+      <div><label for="sampleCount">采样 / 对齐帧数</label>
+        <div class="muted-text">沿时间轴抽取并两两对应的帧数，越多越精细但更慢。</div></div>
+      <input type="number" id="sampleCount" min="4" max="30" value="12">
+    </div>
+    <div class="setting-row">
+      <div><label for="analysisSize">分析分辨率</label>
+        <div class="muted-text">帧会归一化到该尺寸后再比较。</div></div>
+      <select id="analysisSize">
+        <option value="256x144">256 × 144（快）</option>
+        <option value="320x180" selected>320 × 180（推荐）</option>
+        <option value="480x270">480 × 270（精细）</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <div><label for="diffThreshold">差异判定阈值</label>
+        <div class="muted-text">灰度差超过该值才计为差异像素（0-255）。</div></div>
+      <input type="number" id="diffThreshold" min="5" max="80" value="25">
+    </div>
+    <div class="setting-row">
+      <div><label for="heatmapColor">热力图配色</label></div>
+      <select id="heatmapColor">
+        <option value="red" selected>红色高亮</option>
+        <option value="thermal">热力伪彩</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <div><label for="autoRestore">重开自动恢复上次会话</label></div>
+      <label class="toggle"><input type="checkbox" id="autoRestore" checked><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <!-- AI 进阶分析 -->
+  <div class="setting-card ai-card">
+    <h2 class="ai-title"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 进阶分析（默认关闭）</h2>
+    <div class="setting-row">
+      <div><label for="aiEnabled">启用 AI 进阶分析</label>
+        <div class="muted-text">开启后主界面出现「AI 进阶分析」按钮，并在基础分析后自动运行。</div></div>
+      <label class="toggle"><input type="checkbox" id="aiEnabled"><span class="slider"></span></label>
+    </div>
+
+    <div class="setting-row">
+      <div><label>分析方式</label>
+        <div class="muted-text">本地模型离线运行，或连接云端 API。</div></div>
+      <select id="aiMode">
+        <option value="local" selected>本地模型（MoveNet 姿态）</option>
+        <option value="cloud">云端 API（API Key）</option>
+      </select>
+    </div>
+
+    <!-- 本地模型面板 -->
+    <div id="localPanel" class="ai-panel">
+      <div class="setting-row">
+        <div><label for="modelVariant">模型变体</label></div>
+        <select id="modelVariant">
+          <option value="lightning" selected>Lightning（192，快，约 4.7MB）</option>
+          <option value="thunder">Thunder（256，高精度，约 12MB）</option>
+        </select>
+      </div>
+
+      <div class="ai-action-box">
+        <button id="modelDownloadBtn" type="button"><i class="fa-solid fa-download"></i> 下载 / 更新本地模型</button>
+        <div class="ai-progress" id="modelProgressWrap">
+          <div class="ai-progress-bar" id="modelProgressBar"></div>
+        </div>
+        <div class="ai-progress-text">
+          <span id="modelProgressText">0%</span>
+          <span id="modelFileText" class="muted-text"></span>
+        </div>
+        <div class="ai-status" id="modelStatus">正在检查本地模型...</div>
+      </div>
+
+      <div class="ai-action-box">
+        <button id="folderBtn" type="button" class="secondary"><i class="fa-solid fa-folder-open"></i> 授权项目文件夹</button>
+        <div class="ai-status" id="folderStatus"></div>
+        <div class="muted-text" style="margin-top:6px;">授权后，下载的模型会写入该文件夹的 ai-models 子目录；未授权则仅保存在本地数据库，离线运行不受影响。</div>
+      </div>
+
+      <div class="setting-row" style="border-bottom:none;">
+        <div><label for="modelAutoLoad">下次开启自动加载模型</label>
+          <div class="muted-text">按设定自动加载，关闭则不自动加载。</div></div>
+        <label class="toggle"><input type="checkbox" id="modelAutoLoad" checked><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <!-- 云端 API 面板 -->
+    <div id="cloudPanel" class="ai-panel" style="display:none;">
+      <div class="cloud-field">
+        <label for="cloudBaseUrl">接口地址（Base URL）</label>
+        <input type="text" id="cloudBaseUrl" placeholder="https://api.openai.com/v1">
+      </div>
+      <div class="cloud-field">
+        <label for="cloudApiKey">API Key</label>
+        <div class="key-line">
+          <input type="password" id="cloudApiKey" placeholder="sk-...">
+          <button type="button" class="secondary key-toggle" id="keyToggle"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="cloud-field">
+        <label for="cloudModel">模型名称</label>
+        <input type="text" id="cloudModel" placeholder="gpt-4o">
+      </div>
+      <button id="cloudTestBtn" type="button" class="secondary"><i class="fa-solid fa-plug"></i> 测试连接</button>
+      <div class="ai-status" id="cloudStatus"></div>
+    </div>
+  </div>
+
+  <div class="setting-card">
+    <button id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> 保存设定</button>
+    <button id="defaultBtn" class="secondary"><i class="fa-solid fa-wand-magic-sparkles"></i> 恢复默认</button>
+    <div class="save-status" id="saveStatus">尚未保存</div>
+  </div>
+</main>
+
+<script src="js/core/util.js"></script>
+<script src="js/core/storage.js"></script>
+<script src="vendor/tfjs/tf.min.js"></script>
+<script src="js/core/ai/model-store.js"></script>
+<script src="js/core/ai/cloud-api.js"></script>
+<script>
+(function () {
+  'use strict';
+  var el = function (id) { return document.getElementById(id); };
+  var settings = null;
+
+  function setSave(text, ok) {
+    var box = el('saveStatus');
+    box.textContent = text;
+    box.className = 'save-status ' + (ok ? 'ok' : 'err');
+  }
+
+  function persist() {
+    return VC.Storage.saveSettings(collect()).then(function () {
+      setSave('已自动保存 ' + new Date().toLocaleTimeString('zh-CN', { hour12: false }), true);
+      updateModePanels();
+    }, function () {});
+  }
+
+  function collect() {
+    var size = (el('analysisSize').value || '320x180').split('x');
+    var next = Object.assign({}, settings);
+    next.sampleCount = parseInt(el('sampleCount').value, 10) || 12;
+    next.analysisWidth = parseInt(size[0], 10);
+    next.analysisHeight = parseInt(size[1], 10);
+    next.diffThreshold = parseInt(el('diffThreshold').value, 10) || 25;
+    next.heatmapColor = el('heatmapColor').value;
+    next.autoRestore = el('autoRestore').checked;
+    next.aiEnabled = el('aiEnabled').checked;
+    next.aiMode = el('aiMode').value;
+    next.modelVariant = el('modelVariant').value;
+    next.modelAutoLoad = el('modelAutoLoad').checked;
+    next.cloudBaseUrl = el('cloudBaseUrl').value.trim();
+    next.cloudApiKey = el('cloudApiKey').value.trim();
+    next.cloudModel = el('cloudModel').value.trim();
+    return next;
+  }
+
+  function fill(s) {
+    settings = s;
+    el('sampleCount').value = s.sampleCount;
+    el('analysisSize').value = s.analysisWidth + 'x' + s.analysisHeight;
+    el('diffThreshold').value = s.diffThreshold;
+    el('heatmapColor').value = s.heatmapColor;
+    el('autoRestore').checked = !!s.autoRestore;
+    el('aiEnabled').checked = !!s.aiEnabled;
+    el('aiMode').value = s.aiMode;
+    el('modelVariant').value = s.modelVariant;
+    el('modelAutoLoad').checked = !!s.modelAutoLoad;
+    el('cloudBaseUrl').value = s.cloudBaseUrl || '';
+    el('cloudApiKey').value = s.cloudApiKey || '';
+    el('cloudModel').value = s.cloudModel || '';
+    updateModePanels();
+  }
+
+  function updateModePanels() {
+    var isCloud = el('aiMode').value === 'cloud';
+    el('localPanel').style.display = isCloud ? 'none' : 'block';
+    el('cloudPanel').style.display = isCloud ? 'block' : 'none';
+  }
+
+  /* 模型状态 */
+  async function refreshModelStatus() {
+    var variant = el('modelVariant').value;
+    var box = el('modelStatus');
+    var ready = await VC.AI.ModelStore.isReady(variant);
+    if (ready) {
+      var rec = await VC.AI.ModelStore.getRecord(variant);
+      box.className = 'ai-status ok';
+      box.textContent = '已下载（' + VC.Util.formatBytes(rec.bytes) +
+        '，' + VC.Util.formatDate(rec.savedAt) + '）';
+    } else {
+      box.className = 'ai-status';
+      box.textContent = '尚未下载该模型';
+    }
+  }
+
+  /* 下载 */
+  async function doDownload() {
+    var variant = el('modelVariant').value;
+    var btn = el('modelDownloadBtn');
+    btn.disabled = true;
+    el('modelProgressWrap').style.display = 'block';
+    el('modelProgressBar').style.width = '0%';
+    try {
+      var res = await VC.AI.ModelStore.downloadModel(variant, function (p) {
+        if (p.percent != null) {
+          el('modelProgressBar').style.width = (p.percent * 100).toFixed(1) + '%';
+          el('modelProgressText').textContent = (p.percent * 100).toFixed(1) + '%';
+        }
+        if (p.label) el('modelFileText').textContent = '正在下载 ' + p.label;
+      });
+      el('modelProgressBar').style.width = '100%';
+      el('modelProgressText').textContent = '100%';
+      el('modelFileText').textContent = '下载完成';
+      if (res.folderInfo && res.folderInfo.path) {
+        el('folderStatus').className = 'ai-status ok';
+        el('folderStatus').textContent = '已写入文件夹：' + res.folderInfo.path;
+      }
+      await refreshModelStatus();
+      await persist();
+    } catch (e) {
+      el('modelFileText').textContent = '下载失败：' + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  /* 文件夹授权 */
+  async function doPickFolder() {
+    try {
+      if (!VC.AI.ModelStore.supportsFolderPicker()) {
+        el('folderStatus').className = 'ai-status err';
+        el('folderStatus').textContent = '当前浏览器不支持文件夹选择，已使用本地数据库缓存';
+        return;
+      }
+      var h = await VC.AI.ModelStore.pickFolder();
+      el('folderStatus').className = 'ai-status ok';
+      el('folderStatus').textContent = '已授权文件夹：' + h.name;
+    } catch (e) {
+      el('folderStatus').className = 'ai-status err';
+      el('folderStatus').textContent = '授权失败：' + e.message;
+    }
+  }
+
+  async function refreshFolderStatus() {
+    try {
+      var row = await VC.AI.ModelStore.getFolderRow();
+      if (row && row.name) {
+        el('folderStatus').className = 'ai-status ok';
+        el('folderStatus').textContent = '已授权文件夹：' + row.name;
+      }
+    } catch (e) {}
+  }
+
+  /* 云端连接测试 */
+  async function doCloudTest() {
+    await persist();
+    try {
+      var msg = await VC.AI.CloudApi.testConnection(collect());
+      el('cloudStatus').className = 'ai-status ok';
+      el('cloudStatus').textContent = msg;
+    } catch (e) {
+      el('cloudStatus').className = 'ai-status err';
+      el('cloudStatus').textContent = '测试失败：' + e.message;
+    }
+  }
+
+  /* 事件 */
+  VC.Storage.getSettings().then(function (s) {
+    fill(s);
+    refreshModelStatus();
+    refreshFolderStatus();
+  });
+
+  ['sampleCount','analysisSize','diffThreshold','heatmapColor','autoRestore',
+   'aiEnabled','aiMode','modelVariant','modelAutoLoad',
+   'cloudBaseUrl','cloudApiKey','cloudModel'].forEach(function (id) {
+    el(id).addEventListener('change', persist);
+  });
+
+  el('saveBtn').addEventListener('click', function () {
+    VC.Storage.saveSettings(collect()).then(function () {
+      setSave('设定已保存', true);
+    }, function (e) { setSave('保存失败：' + e.message, false); });
+  });
+
+  el('defaultBtn').addEventListener('click', function () {
+    fill(Object.assign({}, VC.DEFAULTS));
+    VC.Storage.saveSettings(collect()).then(function () { setSave('已恢复默认', true); });
+  });
+
+  el('modelDownloadBtn').addEventListener('click', doDownload);
+  el('folderBtn').addEventListener('click', doPickFolder);
+  el('cloudTestBtn').addEventListener('click', doCloudTest);
+  el('keyToggle').addEventListener('click', function () {
+    var inp = el('cloudApiKey');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  });
+})();
+</script>
+</body>
+</html>
